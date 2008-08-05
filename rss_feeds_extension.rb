@@ -6,8 +6,7 @@ class RssFeedsExtension < Radiant::Extension
   url ""
   
   define_routes do |map|
-    map.rss 'rss/*url.xml', :controller => 'rss', :action => 'index', :format => 'xml'
-    map.rss 'rss/*url', :controller => 'rss', :action => 'index', :format => 'html'
+    map.rss 'rss.xml', :controller => 'rss', :action => 'index', :format => 'xml'
   end
   
   def activate
