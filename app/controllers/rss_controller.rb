@@ -37,13 +37,14 @@ class RssController < ApplicationController
         @pages = urls.map{|url| Page.find_by_url(url)}.compact
         @pages.delete_if {|page| ! (page.headers['Status'] =~ /\A404 /).nil?}
         ids = @pages.map(&:id)
+        @items = []
+        return if ids.empty?
         conditions = ["(class_name IS NULL OR class_name = 'Page') AND parent_id IN (#{ids.join(',')})"]
         if ! keywords.empty?
           keywords_expr = '(' + keywords.map{|k| "keywords LIKE ?"}.join(' OR ') + ')'
           conditions[0] += " AND #{keywords_expr}"
           conditions += keywords.map{|k| "%#{k}%"}
         end
-        @items = []
         offset = 0
         loop do
           children = Page.find(:all, :conditions => conditions, :order => 'published_at DESC', :limit => 30, :offset => offset)
