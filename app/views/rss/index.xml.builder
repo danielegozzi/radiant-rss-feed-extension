@@ -1,19 +1,18 @@
 xml.instruct! :xml, :version=>"1.0" 
-xml.rss(:version=>"2.0"){
+xml.rss(:version=>"2.0", :'xmlns:atom' => "http://www.w3.org/2005/Atom"){
   xml.channel{
-    site_root = @page.ancestors.find{|p| p.parts.find_by_name('section_title')} || Page.root
-    xml.title(@page.title + ' @ ' + site_root.title)
-    xml.link(@page.url)
-    xml.description(@page.title + ' @ ' + site_root.title)
-    xml.language(@page.language)
-      for child in @pages
+    xml.title feed_title(@pages)
+    xml.link feed_url(@pages)
+    xml.description strip_tags(to_description(@pages))
+    xml.language "en-us"
+    xml.tag!("atom:link", :href => URI::escape(request.url,Regexp.union(URI::REGEXP::UNSAFE, /[\[\]]/)), :rel => "self", :type => "application/rss+xml")
+      for item in @items
         xml.item do
-          xml.title(child.title)
-          xml.description(child.render_part(:body))      
-          xml.author((child.created_by.blank? ? "" : child.created_by.name) || "")               
-          xml.pubDate(child.published_at.strftime("%a, %d %b %Y %H:%M:%S %z"))
-          xml.link(child.url)
-          xml.guid(child.url)
+          xml.title item.title
+          xml.description item.render_part(:body)
+          xml.pubDate(item.published_at.strftime("%a, %d %b %Y %H:%M:%S %z"))
+          xml.link to_absolute_url(item.url)
+          xml.guid to_absolute_url(item.url)
         end
       end
   }
