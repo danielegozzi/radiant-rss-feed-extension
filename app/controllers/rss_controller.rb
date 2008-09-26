@@ -39,7 +39,7 @@ class RssController < ApplicationController
         ids = @pages.map(&:id)
         @items = []
         return if ids.empty?
-        conditions = ["(class_name IS NULL OR class_name = 'Page') AND parent_id IN (#{ids.join(',')})"]
+        conditions = ["(class_name IS NULL OR class_name = 'Page') AND status_id = ? AND parent_id IN (#{ids.join(',')})", Status[:published].id]
         if ! keywords.empty?
           keywords_expr = '(' + keywords.map{|k| "keywords LIKE ?"}.join(' OR ') + ')'
           conditions[0] += " AND #{keywords_expr}"
